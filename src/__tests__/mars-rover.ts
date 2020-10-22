@@ -1,4 +1,4 @@
-import { Rover, Direction } from "../mars-rover";
+import { Rover, Direction, Grid } from "../mars-rover";
 
 test("it works", () => {});
 
@@ -126,5 +126,59 @@ describe("Mars Rover", () => {
       }
     );
   });
+
+  describe("Rover moves from one edge of the grid to another.", () => {
+    it("should assign a grid size", () => {
+      const grid: Grid = { width: 5, height: 5}
+      const rover = Rover(0, 0, 'N', grid);
+
+      let expectedGrid: Grid =  { width: 5, height: 5}
+      expect(rover.state().grid).toEqual(expectedGrid);
+    })
+
+    it("should use default value 10x10 when grid is not assigned", () => {
+      const rover = Rover(0, 0, 'N');
+
+      let expectedGrid: Grid = { width: 10, height: 10}
+      expect(rover.state().grid).toEqual(expectedGrid);
+    })
+
+    it('should return X to 0 when grid is passed from east', function() {
+      const grid: Grid = { width: 5, height: 5}
+      const rover = Rover(4, 4, 'E', grid);
+      rover.execute("F")
+
+      let expectedPosition = { x: 0, y: 4 };
+      expect(rover.state().position).toEqual(expectedPosition);  
+    });
+
+    it('should return Y to grid end when grid is passed from north', function() {
+      const grid: Grid = { width: 5, height: 5}
+      const rover = Rover(4, 4, 'N', grid);
+      rover.execute("F")
+
+      let expectedPosition = { x: 4, y: 0 };
+      expect(rover.state().position).toEqual(expectedPosition);  
+    });
+
+    it('should return to grid width  when grid is passed from west', function() {
+      const grid: Grid = { width: 5, height: 5}
+      const rover = Rover(0, 0, 'W', grid);
+      rover.execute("F")
+
+      let expectedPosition = { x: 4, y: 0 };
+      expect(rover.state().position).toEqual(expectedPosition);  
+    });
+
+    it('should return to grid height when grid is passed from south', function() {
+      const grid: Grid = { width: 5, height: 5}
+      const rover = Rover(0, 0, 'S', grid);
+      rover.execute("F")
+
+      let expectedPosition = { x: 0, y: 4 };
+      expect(rover.state().position).toEqual(expectedPosition);  
+    });
+  })
+
 
 });

@@ -11,9 +11,15 @@ interface RoverState {
 export interface Result {
   position: Coordinate;
   direction: Direction;
+  grid: Grid
 }
 
 export type Command = "F" | "B" | "L" | "R";
+
+export type Grid = {
+  width: number;
+  height: number;
+};
 
 const moveForwardMap: Record<Direction, (RoverState) => RoverState> = {
   N: (state) => ({ ...state, y: state.y + 1 }),
@@ -59,7 +65,21 @@ const reducer = (state: RoverState, command: Command): RoverState => {
   }
 };
 
-export function Rover(x = 0, y = 0, direction: Direction = "N") {
+export function positionInGrid(rover: RoverState, grid: Grid): RoverState {
+  const { width, height } = grid;
+  return {
+    ...rover,
+    x: (((rover.x + width) % width) + width) % width,
+    y: (((rover.y + height) % height) + width) % width,
+  };
+}
+
+export function Rover(
+  x = 0,
+  y = 0,
+  direction: Direction = "N",
+  grid: Grid = { width: 10, height: 10 }
+) {
   let roverState: RoverState = {
     x,
     y,
@@ -72,13 +92,14 @@ export function Rover(x = 0, y = 0, direction: Direction = "N") {
 
   const execute = (commandSequence: string): void => {
     roverState = commands(commandSequence).reduce((state, command) => {
-      return reducer(state, command as Command);
+      return positionInGrid(reducer(state, command as Command), grid)
     }, roverState);
   };
 
   const state = (): Result => ({
     direction: roverState.direction,
     position: { x: roverState.x, y: roverState.y },
+    grid
   });
 
   return {
