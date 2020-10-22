@@ -36,5 +36,18 @@ describe("Mars Rover", () => {
   })
 
 
+  
+  it("Rover receives a character array of commands.", () => {
+
+    const rover = Rover()
+    const result = rover.commands("FFBB")
+
+    let expectedCommands: string[] = [
+      "F", "F", "B", "B"
+    ];
+    expect(result).toEqual(expectedCommands);
+  });  
+
+
 
 })

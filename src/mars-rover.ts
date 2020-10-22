@@ -25,13 +25,18 @@ export function Rover(
     direction
   }
 
+  const commands = (commandSequence: string): string[] => {
+    return commandSequence.split("");
+  };
+
   const state = (): Result => ({
     direction: roverState.direction,
     position: { x: roverState.x, y: roverState.y}
   })
 
   return {
-    state
+    state,
+    commands
   }
 }
 
