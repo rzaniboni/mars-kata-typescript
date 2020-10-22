@@ -106,4 +106,25 @@ describe("Mars Rover", () => {
   });
 
 
+  describe("it can turn right when receiving command R", () => {
+    test.each`
+      direction | newDirection
+      ${"N"}    | ${"E"}
+      ${"E"}    | ${"S"}
+      ${"S"}    | ${"W"}
+      ${"W"}    | ${"N"}
+    `(
+      `when oriented $direction turn on $direction`,
+      ({ direction, newDirection }) => {
+        const rover = Rover(0, 0, direction);
+        rover.execute("R")
+
+        let expectedPosition = { x: 0, y: 0 };
+        let expectedDirection = newDirection;
+        expect(rover.state().position).toEqual(expectedPosition);
+        expect(rover.state().direction).toEqual(expectedDirection);
+      }
+    );
+  });
+
 });

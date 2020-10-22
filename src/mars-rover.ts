@@ -13,7 +13,7 @@ export interface Result {
   direction: Direction;
 }
 
-export type Command = "F" | "B" | "L";
+export type Command = "F" | "B" | "L" | "R";
 
 const moveForwardMap: Record<Direction, (RoverState) => RoverState> = {
   N: (state) => ({ ...state, y: state.y + 1 }),
@@ -36,10 +36,7 @@ const getDirection: Record<Direction, { left: Direction; right: Direction }> = {
   W: { left: "S", right: "N" },
 };
 
-
-
 function exhaustiveCheck(_: never) {}
-
 
 const reducer = (state: RoverState, command: Command): RoverState => {
   switch (command) {
@@ -51,10 +48,14 @@ const reducer = (state: RoverState, command: Command): RoverState => {
       return {
         ...state,
         direction: getDirection[state.direction].left,
-      }
-      
+      };
+    case "R":
+      return {
+        ...state,
+        direction: getDirection[state.direction].right,
+      };
     default:
-      exhaustiveCheck(command)
+      exhaustiveCheck(command);
   }
 };
 
