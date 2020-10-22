@@ -42,25 +42,24 @@ describe("Mars Rover", () => {
   });
 
   describe("it can move forward when receiving command F", () => {
-    it("when oriented N moves towards N on y", () => {
-      const rover = Rover(0, 0, "N");
-      rover.execute("F");
+    test.each`
+      direction | asse   | x    | y
+      ${"N"}    | ${"y"} | ${5} | ${6}
+      ${"E"}    | ${"x"} | ${6} | ${5}
+      ${"S"}    | ${"y"} | ${5} | ${4}
+      ${"W"}    | ${"x"} | ${4} | ${5}
+    `(
+      `when oriented $direction moves towards $direction on $asse`,
+      ({ direction, asse, x, y }) => {
+        const rover = Rover(5, 5, direction);
+        rover.execute("F");
 
-      let expectedPosition = { x: 0, y: 1 };
-      let expectedDirection = "N";
-      expect(rover.state().position).toEqual(expectedPosition);
-      expect(rover.state().direction).toEqual(expectedDirection);
-    });
+        let expectedPosition = { x, y };
+        let expectedDirection = direction;
+        expect(rover.state().position).toEqual(expectedPosition);
+        expect(rover.state().direction).toEqual(expectedDirection);
+      }
+    );
 
-
-    it("when oriented E moves towards E on x", () => {
-      const rover = Rover(0, 0, "E");
-      rover.execute("FF");
-
-      let expectedPosition = { x: 2, y: 0 };
-      let expectedDirection = "E";
-      expect(rover.state().position).toEqual(expectedPosition);
-      expect(rover.state().direction).toEqual(expectedDirection);
-    });
   });
 });
