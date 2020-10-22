@@ -8,10 +8,13 @@ interface RoverState {
   direction: Direction;
 }
 
+export type ExecutedStatus = "OK" | "OBSTACLE";
+
 export interface Result {
   position: Coordinate;
   direction: Direction;
-  grid: Grid
+  grid: Grid,
+  executedStatus: ExecutedStatus
 }
 
 export type Command = "F" | "B" | "L" | "R";
@@ -69,16 +72,24 @@ export function positionInGrid(rover: RoverState, grid: Grid): RoverState {
   const { width, height } = grid;
   return {
     ...rover,
-    x: (((rover.x + width) % width) + width) % width,
-    y: (((rover.y + height) % height) + width) % width,
+    x: ((rover.x + width) % width),
+    y: ((rover.y + height) % height)
   };
 }
+
+function isOccupied(x: number, y: number, obstacles: Coordinate[]): Boolean {
+  return obstacles.some(
+    (obstacle) => obstacle.x === x && obstacle.y === y
+  );
+}
+
 
 export function Rover(
   x = 0,
   y = 0,
   direction: Direction = "N",
-  grid: Grid = { width: 10, height: 10 }
+  grid: Grid = { width: 10, height: 10 },
+  obstacles: Coordinate[] = []
 ) {
   let roverState: RoverState = {
     x,
@@ -86,20 +97,30 @@ export function Rover(
     direction,
   };
 
+  let executedStatus: ExecutedStatus;
+
   const commands = (commandSequence: string): string[] => {
     return commandSequence.split("");
   };
 
   const execute = (commandSequence: string): void => {
-    roverState = commands(commandSequence).reduce((state, command) => {
-      return positionInGrid(reducer(state, command as Command), grid)
-    }, roverState);
+    executedStatus = "OK"
+    for (const command of commands(commandSequence)) {
+      const rover = positionInGrid(reducer(roverState, command as Command), grid)
+      const isObstacle = isOccupied(rover.x, rover.y, obstacles)
+      if (isObstacle) {
+        executedStatus = "OBSTACLE"
+        break
+      }
+      roverState = {...rover}
+    }
   };
 
   const state = (): Result => ({
     direction: roverState.direction,
     position: { x: roverState.x, y: roverState.y },
-    grid
+    grid,
+    executedStatus
   });
 
   return {

@@ -1,4 +1,4 @@
-import { Rover, Direction, Grid } from "../mars-rover";
+import { Rover, Direction, Grid, Coordinate, ExecutedStatus } from "../mars-rover";
 
 test("it works", () => {});
 
@@ -35,13 +35,14 @@ describe("Mars Rover", () => {
 
   it("Rover receives a character array of commands.", () => {
     const rover = Rover();
+
     const result = rover.commands("FFBB");
 
     let expectedCommands: string[] = ["F", "F", "B", "B"];
     expect(result).toEqual(expectedCommands);
   });
 
-  describe("it can move forward when receiving command F", () => {
+  describe("It can move forward when receiving command F", () => {
     test.each`
       direction | axis   | x    | y
       ${"N"}    | ${"y"} | ${5} | ${6}
@@ -52,6 +53,7 @@ describe("Mars Rover", () => {
       `when oriented $direction moves towards $direction on $axis`,
       ({ direction, axis, x, y }) => {
         const rover = Rover(5, 5, direction);
+
         rover.execute("F");
 
         let expectedPosition = { x, y };
@@ -63,7 +65,7 @@ describe("Mars Rover", () => {
 
   });
 
-  describe("it can move backward when receiving command B", () => {
+  describe("It can move backward when receiving command B", () => {
     test.each`
       direction | axis   | x    | y
       ${"N"}    | ${"y"} | ${5} | ${4}
@@ -74,6 +76,7 @@ describe("Mars Rover", () => {
       `when oriented $direction moves towards $direction on $axis`,
       ({ direction, axis, x, y }) => {
         const rover = Rover(5, 5, direction);
+
         rover.execute("B")
 
         let expectedPosition = { x, y };
@@ -84,7 +87,7 @@ describe("Mars Rover", () => {
     );
   })
 
-  describe("it can turn left when receiving command L", () => {
+  describe("It can turn left when receiving command L", () => {
     test.each`
       direction | newDirection
       ${"N"}    | ${"W"}
@@ -95,18 +98,17 @@ describe("Mars Rover", () => {
       `when oriented $direction turn on $direction`,
       ({ direction, newDirection }) => {
         const rover = Rover(0, 0, direction);
+
         rover.execute("L")
  
-        let expectedPosition = { x: 0, y: 0 };
         let expectedDirection = newDirection;
-        expect(rover.state().position).toEqual(expectedPosition);
         expect(rover.state().direction).toEqual(expectedDirection);
       }
     );
   });
 
 
-  describe("it can turn right when receiving command R", () => {
+  describe("It can turn right when receiving command R", () => {
     test.each`
       direction | newDirection
       ${"N"}    | ${"E"}
@@ -117,17 +119,16 @@ describe("Mars Rover", () => {
       `when oriented $direction turn on $direction`,
       ({ direction, newDirection }) => {
         const rover = Rover(0, 0, direction);
+
         rover.execute("R")
 
-        let expectedPosition = { x: 0, y: 0 };
         let expectedDirection = newDirection;
-        expect(rover.state().position).toEqual(expectedPosition);
         expect(rover.state().direction).toEqual(expectedDirection);
       }
     );
   });
 
-  describe("Rover moves from one edge of the grid to another.", () => {
+  describe("It moves from one edge of the grid to another.", () => {
     it("should assign a grid size", () => {
       const grid: Grid = { width: 5, height: 5}
       const rover = Rover(0, 0, 'N', grid);
@@ -146,6 +147,7 @@ describe("Mars Rover", () => {
     it('should return X to 0 when grid is passed from east', function() {
       const grid: Grid = { width: 5, height: 5}
       const rover = Rover(4, 4, 'E', grid);
+
       rover.execute("F")
 
       let expectedPosition = { x: 0, y: 4 };
@@ -155,6 +157,7 @@ describe("Mars Rover", () => {
     it('should return Y to grid end when grid is passed from north', function() {
       const grid: Grid = { width: 5, height: 5}
       const rover = Rover(4, 4, 'N', grid);
+
       rover.execute("F")
 
       let expectedPosition = { x: 4, y: 0 };
@@ -164,15 +167,17 @@ describe("Mars Rover", () => {
     it('should return to grid width  when grid is passed from west', function() {
       const grid: Grid = { width: 5, height: 5}
       const rover = Rover(0, 0, 'W', grid);
+
       rover.execute("F")
 
       let expectedPosition = { x: 4, y: 0 };
       expect(rover.state().position).toEqual(expectedPosition);  
     });
 
-    it('should return to grid height when grid is passed from south', function() {
+    it('Should return to grid height when grid is passed from south', function() {
       const grid: Grid = { width: 5, height: 5}
       const rover = Rover(0, 0, 'S', grid);
+
       rover.execute("F")
 
       let expectedPosition = { x: 0, y: 4 };
@@ -180,5 +185,38 @@ describe("Mars Rover", () => {
     });
   })
 
+  describe("It detects obstacles while moving to a new square.", () => {
+
+    it("when rover does not encounter any obstacles, it return status OK", () => {
+      const grid: Grid = { width: 5, height: 5}
+      const obstacles: Coordinate[] = [
+        { x: 3, y: 4 },
+      ];
+      const rover = Rover(0, 0, 'N', grid, obstacles);
+
+      rover.execute("FF")
+
+      let expectedPosition = { x: 0, y: 2 };
+      let expectedStatus: ExecutedStatus = "OK";
+      expect(rover.state().executedStatus).toBe(expectedStatus);
+      expect(rover.state().position).toEqual(expectedPosition);
+    })
+
+    it("when rover encounters an obstacle, it aborts the sequence and returns status OBSTACLE", () => {
+      const grid: Grid = { width: 5, height: 5}
+      const obstacles: Coordinate[] = [
+        { x: 3, y: 4 },
+      ];
+      const rover = Rover(3, 2, 'N', grid, obstacles);
+
+      rover.execute("FF")
+
+      let expectedPosition = { x: 3, y: 3 };
+      let expectedStatus: ExecutedStatus = "OBSTACLE";
+      expect(rover.state().executedStatus).toBe(expectedStatus);
+      expect(rover.state().position).toEqual(expectedPosition);
+    })
+
+  });
 
 });
