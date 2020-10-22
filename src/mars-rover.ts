@@ -63,7 +63,10 @@ const reducer = (state: RoverState, command: Command): RoverState => {
         ...state,
         direction: getDirection[state.direction].right,
       };
+    default:
+      exhaustiveCheck;
   }
+  return state;
 };
 
 export function positionInGrid(rover: RoverState, grid: Grid): RoverState {
